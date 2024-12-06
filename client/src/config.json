@@ -1,0 +1,16 @@
+{
+    "HOME_URL" : "/",
+    "VIEW_URL" : "/view/:id",
+    "action" : {
+        "view" : {
+            "name" : "View",
+            "url" : "/view",
+            "icon": "material-symbols:visibility"
+        }, 
+        "delete" : {
+            "name" : "Delete",
+            "url" : "/delete",
+            "icon": "material-symbols:delete"
+        }
+    }
+}
