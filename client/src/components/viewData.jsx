@@ -76,7 +76,8 @@ export default function ViewData() {
                                 <Grid2 size={{md: 3, xs: 6}}  >
                                     <Typography variant="body1" color="text.primary" sx={{ fontSize: 18, }} 
                                     >
-                                        {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value}
+                                        {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : 
+                                        value}
                                     </Typography>
                                 </Grid2>
                             </Fragment>

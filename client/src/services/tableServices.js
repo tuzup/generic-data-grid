@@ -42,3 +42,31 @@ export const deleteDataService = async (id, setAlert, setAlertMessage) => {
         return false;
     }
 }
+
+export const initializeDataService = async (setAlert, setAlertMessage) => {
+    try {
+        const response = await api.initializeData();
+        return response.data;
+    } catch (error) {
+        setAlert(true);
+        console.log(error);
+        if(error.status === 500) setAlertMessage('Oops! Seems like the server is down. Please try again later');
+        else
+        setAlertMessage('Oops! Something went worng : ' + error?.response?.data);
+        return false;
+    }
+}
+
+export const searchDataService = async (searchValue, setAlert, setAlertMessage) => {
+    try {
+        const response = await api.searchData(searchValue);
+        return response.data;
+    } catch (error) {
+        setAlert(true);
+        console.log(error);
+        if(error.status === 500) setAlertMessage('Oops! Seems like the server is down. Please try again later');
+        else
+        setAlertMessage('Oops! Something went worng : ' + error?.response?.data);
+        return false;
+    }
+}

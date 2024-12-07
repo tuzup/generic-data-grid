@@ -14,7 +14,8 @@ mongoose.connect(process.env.MONGODB_URI
     });
 
 const TableSchema = new mongoose.Schema({
-    Brand: String,
+    Brand:{ type : String
+    },
     Model: String,
     AccelSec: Number,
     TopSpeed_KmH: Number,
@@ -28,12 +29,12 @@ const TableSchema = new mongoose.Schema({
     Segment: String,
     Seats: Number,
     PriceEuro: Number,
-    Date: Date
+    Date: {
+        type: Date,
+        get: (date) => date.toLocaleDateString("en-US") 
+    }
 });
 
-TableSchema.methods.getFormattedDate = function () {
-    return this.date.toISOString().split('T')[0]; // Returns YYYY-MM-DD
-};
 
 module.exports = mongoose.model('Table', TableSchema);
 

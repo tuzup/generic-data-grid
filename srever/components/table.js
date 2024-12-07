@@ -29,7 +29,9 @@ exports.addData = async (req, res) => {
         .on('end', async () => {
             try {
                 await model.insertMany(results);
-                res.status(200).send('Data imported successfully');
+                res.status(200).json({
+                    status: 'success',
+                });
             } catch (error) {
                 logger.error('Error importing data: ', error);
                 res.status(500).send('Error importing data', error);
@@ -101,5 +103,27 @@ exports.deleteData = async (req, res) => {
     } catch (error) {
         logger.error('Error deleting data: ', error);
         res.status(500).send('Error deleting data', error);
+    }
+}
+
+//This function is used to search the data from the database
+exports.searchData = async (req, res) => {
+    try {
+        const data = await model.find({
+             Brand: { $regex: new RegExp(req.body.searchValue, 'i') }
+            });
+        
+        res.status(200).json({
+            status: 'success',
+            data: data
+        }
+        );
+    } catch (error) {
+        logger.error('Error searching data: ', error);
+        console.log(error);
+        res.status(501).send({
+            message: 'Error searching data',
+            error: error // include the error object itself (if needed)
+        });
     }
 }

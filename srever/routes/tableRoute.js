@@ -8,5 +8,6 @@ router.delete("/clearData", controller.clearData);
 router.get("/getAllData", controller.getAllData);
 router.get("/getSingleData/:id", controller.getSingleData);
 router.delete("/deleteData/:id", controller.deleteData);
+router.post("/searchData", controller.searchData);
 
 module.exports = router;
