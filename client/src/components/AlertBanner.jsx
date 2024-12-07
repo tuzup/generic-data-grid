@@ -1,38 +1,50 @@
 
-import { Box, Snackbar, Alert } from '@mui/material'
+import { Box, Snackbar, Alert, Collapse, IconButton } from '@mui/material'
 import PropTypes from 'prop-types';
 import useResponsive from '../theme/hook/useResponsive';
+import { useEffect, useState } from 'react';
+import Iconify from './Iconify';
+
 
 
 AlertBanner.propTypes = {
     showAlert: PropTypes.bool,
     alertMessage: PropTypes.string,
     severity: PropTypes.string,
-    autoHideDuration: PropTypes.number,
-    onCloseHandle: PropTypes.func,
 }
 
-export default function AlertBanner({ showAlert, alertMessage, severity = 'error', autoHideDuration, onCloseHandle }) {
-    const mdUp = useResponsive('up', 'md');
+export default function AlertBanner({ showAlert, alertMessage, severity = 'error' }) {
+    const [open, setOpen] = useState(showAlert)
+    useEffect(() => {
+        setOpen(showAlert)
+    }   , [showAlert])
     return (
         <>
-            {!mdUp &&
-                <Snackbar
-                    open={showAlert}
-                    autoHideDuration={autoHideDuration}
-                    onClose={onCloseHandle}
+            {showAlert &&
+            <Box mb={3} sx={{ width: '100%' }}>
+                <Collapse in={open}>
+                <Alert
+                    severity={severity}
+                    action={
+                    <IconButton
+                        aria-label="close"
+                        color="inherit"
+                        size="small"
+                        onClick={() => {
+                        setOpen(false);
+                        }}
+                    >
+                        <Iconify icon='material-symbols:close-rounded' />
+                    </IconButton>
+                    }
                 >
-                    <Alert severity={severity} sx={{ width: '100%' }}>
-                        {alertMessage}
-                    </Alert>
-                </Snackbar>}
-            {(mdUp && showAlert) &&
-                <Box mb={3} sx={{ width: '100%' }}>
-                    <Alert severity={severity}  >
-                        {alertMessage}
-                    </Alert>
-                </Box>
+                    <span dangerouslySetInnerHTML={{ __html: alertMessage }} />
+                </Alert>
+                </Collapse>
+
+            </Box>
+            
             }
         </>
-    )
+        )
 }

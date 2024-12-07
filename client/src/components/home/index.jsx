@@ -6,11 +6,12 @@ import React, { useEffect, useState } from "react";
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Box, Button, Container, IconButton, Link, Modal, Stack, Typography } from '@mui/material';
 import configData from '../../config.json';
-import { getAllDataService } from "../../services/tableServices";
+import { deleteDataService, getAllDataService } from "../../services/tableServices";
 import Loading from "../loading";
 import AlertBanner from "../AlertBanner";
 import useWindowDimensions from "../../theme/hook/useWindowDimension";
 import useResponsive from "../../theme/hook/useResponsive";
+import { transformToStandard } from "../../util/helper";
 
 const modelStyle = {
     position: 'absolute',
@@ -49,8 +50,8 @@ export default function Home () {
     const [loading , setLoading] = useState(false);
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
-    const [rowData, setRowData] = useState();
-    const [columnDefs, setColumnDefs] = useState();
+    const [rowData, setRowData] = useState([]);
+    const [columnDefs, setColumnDefs] = useState([]);
 
     const deleteConfirmClose = () => {
         window.location.assign('/');
@@ -62,17 +63,24 @@ export default function Home () {
 
             setLoading(true);
             const response = await getAllDataService(setAlert, setAlertMessage);
-            setRowData(response.data);
-            const column = Object.keys(response.data[0]);
-            const filteredcolumn = column.filter(column => column !== "_id");
+            console.log("Lengthb : " + response.data.length);
+            setRowData(response?.data);
+            if(response.data.length != 0) {
+            const column = Object.keys(response?.data[0]);
+            const filteredcolumn = column.filter((col) => col !== '_id' && col !== '__v'
+        );
             const updatedColumnDefs = filteredcolumn.map((col) => ({
-                headerName: col,
+                headerName: transformToStandard(col),
                 field: col,
                 minWidth: 200,
             }));
             updatedColumnDefs.push({ field: "action", cellRenderer: CustomButtonComponent, flex: 1, pinned: 'right' });
             setColumnDefs(updatedColumnDefs);
             console.log(filteredcolumn);
+            }else{
+                setAlert(true);
+                setAlertMessage("No data found, <br/>Do you want to initialize the data? <a href=" + configData.INITIALIZE_URL + "> Initalize Data</a>");
+            }
             setLoading(false);
         }
         getTable();
@@ -83,6 +91,7 @@ export default function Home () {
             {loading ? <Loading /> :
         <Container maxWidth="lg" className="ag-theme-quartz"  sx={{py: 5, height : {height}}}>
             <AlertBanner showAlert={alert} alertMessage={alertMessage} severity='error' />
+                    <AlertBanner showAlert={query.get('delete')} alertMessage={"Item deleted !!"} severity='success' />
             <AgGridReact
                 rowData={rowData}
                 columnDefs={columnDefs}
@@ -99,11 +108,17 @@ export default function Home () {
                                 Confirm Delete
                             </Typography>
                             <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                                Are you sure you want to delete the data?
+                                Are you sure you want to delete the data? 
                             </Typography>
+                            <AlertBanner showAlert={alert} alertMessage={alertMessage} severity='error' />
                             <Stack mt={2} spacing={2} direction={'row'}>
                                 <Button startIcon={<Iconify icon='fluent:delete-dismiss-24-filled' />} variant="outlined" color="error" sx={{ width: '100%' }}
-                                    
+                                    onClick={async () => {
+                                        const response = await deleteDataService(id, setAlert, setAlertMessage);
+                                        if (response) {
+                                            window.location.assign(configData.HOME_URL + '?delete=true');
+                                        }
+                                    }}
                                 >
                                     Delete
                                 </Button>

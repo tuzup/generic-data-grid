@@ -13,7 +13,7 @@ mongoose.connect(process.env.MONGODB_URI
         console.log(err);
     });
 
-const Table = new mongoose.Schema({
+const TableSchema = new mongoose.Schema({
     Brand: String,
     Model: String,
     AccelSec: Number,
@@ -31,6 +31,10 @@ const Table = new mongoose.Schema({
     Date: Date
 });
 
-module.exports = mongoose.model('Table', Table);
+TableSchema.methods.getFormattedDate = function () {
+    return this.date.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+};
+
+module.exports = mongoose.model('Table', TableSchema);
 
 

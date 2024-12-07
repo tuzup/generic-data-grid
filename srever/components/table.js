@@ -3,6 +3,7 @@ const logger = require('../helper/logger');
 const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
 
 
 //This function is used to initalize the data from the csv file to the database 
@@ -50,14 +51,14 @@ exports.clearData = async (req, res) => {
 
 //This function is used to get all the data from the database
 exports.getAllData = async (req, res) => {
-    try{
+    try {
         const data = await model.find();
         res.status(200).json({
             status: 'success',
             data: data
         }
         );
-    }catch(error){
+    } catch (error) {
         logger.error('Error getting data: ', error);
         res.status(500).send('Error getting data', error);
     }
@@ -65,15 +66,40 @@ exports.getAllData = async (req, res) => {
 
 //This function is used to get a single data from the database
 exports.getSingleData = async (req, res) => {
-    try{
-        const data = await model.findById(req.params.id);
-        res.status(200).json({
-            status: 'success',
-            data: data
-        });
-    }catch(error){
+    try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).send('Please make sure the id is correct');
+        } else {
+            const data = await model.findById(req.params.id);
+            if (!data) {
+                return res.status(404).send('Data not found');
+            }
+            res.status(200).json({
+                status: 'success',
+                data: data
+            }
+            );
+        }
+    } catch (error) {
         logger.error('Error getting single data: ', error);
-        res.status(500).send('Error getting single data', error);
+        res.status(404).send('Error getting single data', error);
     }
 }
 
+//This function is used to delete a single data from the database
+exports.deleteData = async (req, res) => {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).send('Please make sure the id is correct');
+        } else {
+            const data = await model.findByIdAndDelete(req.params.id);
+            if (!data) {
+                return res.status(404).send('Data not found');
+            }
+            res.status(200).send('Data deleted successfully');
+        }
+    } catch (error) {
+        logger.error('Error deleting data: ', error);
+        res.status(500).send('Error deleting data', error);
+    }
+}

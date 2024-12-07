@@ -1,5 +1,6 @@
 {
     "HOME_URL" : "/",
+    "INITIALIZE_URL" : "/initialize",
     "VIEW_URL" : "/view/:id",
     "action" : {
         "view" : {
