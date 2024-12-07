@@ -3,13 +3,25 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import Iconify from "../Iconify";
 import React, { useEffect, useState } from "react";
-import { Link as RouterLink } from 'react-router-dom';
-import { Container, IconButton, Link } from '@mui/material';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { Box, Button, Container, IconButton, Link, Modal, Stack, Typography } from '@mui/material';
 import configData from '../../config.json';
 import { getAllDataService } from "../../services/tableServices";
 import Loading from "../loading";
 import AlertBanner from "../AlertBanner";
 import useWindowDimensions from "../../theme/hook/useWindowDimension";
+import useResponsive from "../../theme/hook/useResponsive";
+
+const modelStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+    borderRadius: 1
+};
 
 const CustomButtonComponent = (props) => {
     const action = configData.action;
@@ -17,7 +29,7 @@ const CustomButtonComponent = (props) => {
     return (
         <div>
             {actionEntries.map(([key, action]) => (
-                <Link component={RouterLink} to={action.url + "/" + props.data._id} key={key}>
+                <Link component={RouterLink} to={action.url  + props.data._id} key={key}>
                 <IconButton>
                     {action.icon ? <Iconify icon={action.icon}/> : action.name}
                 </IconButton>
@@ -28,6 +40,11 @@ const CustomButtonComponent = (props) => {
 };
 
 export default function Home () {
+    const mdUp = useResponsive('up', 'md');
+    const { search } = useLocation();
+    const query = new URLSearchParams(search);
+    const action = query.get('action');
+    const id = query.get('id');
     const { height, width } = useWindowDimensions();
     const [loading , setLoading] = useState(false);
     const [alert, setAlert] = useState(false);
@@ -35,8 +52,14 @@ export default function Home () {
     const [rowData, setRowData] = useState();
     const [columnDefs, setColumnDefs] = useState();
 
+    const deleteConfirmClose = () => {
+        window.location.assign('/');
+    }
+
     useEffect(() => {
+        console.log(action);
         const getTable = async () => {
+
             setLoading(true);
             const response = await getAllDataService(setAlert, setAlertMessage);
             setRowData(response.data);
@@ -65,6 +88,33 @@ export default function Home () {
                 columnDefs={columnDefs}
                 onGridReady={() => setLoading(false)}
             />
+                    <Modal
+                        open={action === 'delete'}
+                        onClose={deleteConfirmClose}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                    >
+                        <Box sx={modelStyle}  width={mdUp ? 400 : '90%'}>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Confirm Delete
+                            </Typography>
+                            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                                Are you sure you want to delete the data?
+                            </Typography>
+                            <Stack mt={2} spacing={2} direction={'row'}>
+                                <Button startIcon={<Iconify icon='fluent:delete-dismiss-24-filled' />} variant="outlined" color="error" sx={{ width: '100%' }}
+                                    
+                                >
+                                    Delete
+                                </Button>
+                                <Button startIcon={<Iconify icon='material-symbols:cancel' />} variant="outlined" color="primary" sx={{ width: '100%' }}
+                                    onClick={deleteConfirmClose}
+                                >
+                                    Cancel
+                                </Button>
+                            </Stack>
+                        </Box>
+                    </Modal>
         </Container>
         }
         </Container>

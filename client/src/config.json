@@ -4,12 +4,12 @@
     "action" : {
         "view" : {
             "name" : "View",
-            "url" : "/view",
+            "url" : "/view/",
             "icon": "material-symbols:visibility"
         }, 
         "delete" : {
             "name" : "Delete",
-            "url" : "/delete",
+            "url" : "/?action=delete&id=",
             "icon": "material-symbols:delete"
         }
     }
