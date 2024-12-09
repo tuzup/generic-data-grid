@@ -4,15 +4,16 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import Iconify from "../Iconify";
 import React, { useEffect, useState } from "react";
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { Container, IconButton, Link } from '@mui/material';
+import { Box, Container, IconButton, Link, Stack } from '@mui/material';
 import configData from '../../config.json';
-import { getAllDataService, searchDataService } from "../../services/tableServices";
+import { getAllDataService, searchDataService, filterDataService } from "../../services/tableServices";
 import Loading from "../loading";
 import AlertBanner from "../AlertBanner";
 import useWindowDimensions from "../../theme/hook/useWindowDimension";
 import { transformToStandard } from "../../util/helper";
 import DeleteModel from "./deleteModel";
 import Search from "./search";
+import Filter from "./filter";
 
 const ActionButtonComponent = (props) => {
     const action = configData.action;
@@ -39,13 +40,28 @@ export default function Home() {
     const [rowData, setRowData] = useState([]);
     const [columnDefs, setColumnDefs] = useState([]);
 
+    const closeAlert = () => {
+        setAlert(false);
+    }
+
     const searchTable = async (searchValue) => {
         const searchJson = {
             searchValue: searchValue
         }
         const response = await searchDataService(searchJson, setAlert, setAlertMessage);
+        console.log("got response " + response);
         setRowData(response?.data);
-    
+
+    }
+
+    const filterTable = async (filterJson) => {
+        const response = await filterDataService(filterJson, setAlert, setAlertMessage);
+        setRowData(response?.data);
+    }
+
+    const resetFilter = async() => {
+        const response = await getAllDataService(setAlert, setAlertMessage);
+        setRowData(response?.data);
     }
 
     useEffect(() => {
@@ -64,7 +80,11 @@ export default function Home() {
                     field: col,
                     minWidth: 200,
                 }));
-                updatedColumnDefs.push({ field: "action", cellRenderer: ActionButtonComponent, flex: 1, pinned: 'right' });
+                updatedColumnDefs.push({ field: "action", 
+                    cellRenderer: ActionButtonComponent, 
+                    flex: 1,
+                    pinned: 'right' ,
+                    });
                 setColumnDefs(updatedColumnDefs);
                 console.log(filteredcolumn);
             } else {
@@ -82,9 +102,18 @@ export default function Home() {
         <Container>
             {loading ? <Loading /> :
                 <Container maxWidth="lg" className="ag-theme-quartz" sx={{ py: 5, height: '90vh' }}>
-                    <AlertBanner showAlert={alert} alertMessage={alertMessage} severity='error' />
-                    <AlertBanner showAlert={query.get('delete')} alertMessage={"Item deleted !!"} severity='success' />
-                    <Search onSearch = {searchTable} />
+                    <AlertBanner showAlert={alert} alertMessage={alertMessage} closeAlert={closeAlert} severity='error' />
+                    <AlertBanner showAlert={query.get('delete')} alertMessage={"Item deleted !!"} closeAlert={closeAlert} severity='success' />
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                        }}>
+                        <Search onSearch={searchTable} />
+                        <Filter columns={columnDefs} handleFormSubmit={filterTable} handleResetFilter={resetFilter}/>
+                    </Box>
+
                     <AgGridReact
                         rowData={rowData}
                         columnDefs={columnDefs}

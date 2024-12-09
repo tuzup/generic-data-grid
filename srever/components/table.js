@@ -14,16 +14,7 @@ exports.addData = async (req, res) => {
     fs.createReadStream(csvFilePath)
         .pipe(csv())
         .on('data', (data) => {
-            // Convert 'yes'/'no' to boolean and '-' to null
-            for (const key in data) {
-                if (data[key].toLowerCase() === 'yes') {
-                    data[key] = true;
-                } else if (data[key].toLowerCase() === 'no') {
-                    data[key] = false;
-                } else if (data[key] === '-') {
-                    data[key] = null;
-                }
-            }
+            
             results.push(data);
         })
         .on('end', async () => {
@@ -34,7 +25,10 @@ exports.addData = async (req, res) => {
                 });
             } catch (error) {
                 logger.error('Error importing data: ', error);
-                res.status(500).send('Error importing data', error);
+                res.status(500).send({
+                    message: 'Error importing data',
+                    error: error
+                });
             }
         });
 }
@@ -47,7 +41,9 @@ exports.clearData = async (req, res) => {
         res.status(200).send('Data cleared successfully');
     } catch (error) {
         logger.error('Error clearing data: ', error);
-        res.status(500).send('Error clearing data', error);
+        res.status(500).send({
+            message : 'Error clearing data', 
+            error: error});
     }
 }
 
@@ -62,7 +58,9 @@ exports.getAllData = async (req, res) => {
         );
     } catch (error) {
         logger.error('Error getting data: ', error);
-        res.status(500).send('Error getting data', error);
+        res.status(500).send({
+            message : 'Error getting data', 
+            error: error});
     }
 }
 
@@ -84,7 +82,9 @@ exports.getSingleData = async (req, res) => {
         }
     } catch (error) {
         logger.error('Error getting single data: ', error);
-        res.status(404).send('Error getting single data', error);
+        res.status(404).send({
+            message : 'Error getting single data',
+            error:  error });
     }
 }
 
@@ -102,7 +102,9 @@ exports.deleteData = async (req, res) => {
         }
     } catch (error) {
         logger.error('Error deleting data: ', error);
-        res.status(500).send('Error deleting data', error);
+        res.status(500).send({
+            message : 'Error deleting data', 
+            error : error});
     }
 }
 
@@ -110,9 +112,9 @@ exports.deleteData = async (req, res) => {
 exports.searchData = async (req, res) => {
     try {
         const data = await model.find({
-             Brand: { $regex: new RegExp(req.body.searchValue, 'i') }
-            });
-        
+            Brand: { $regex: new RegExp(req.body.searchValue, 'i') }
+        });
+
         res.status(200).json({
             status: 'success',
             data: data
@@ -123,7 +125,65 @@ exports.searchData = async (req, res) => {
         console.log(error);
         res.status(501).send({
             message: 'Error searching data',
-            error: error // include the error object itself (if needed)
+            error: error.message
+        });
+    }
+}
+
+//This function is used to perform the filering operation on the data
+exports.filterData = async (req, res) => {
+    const { column_name, criteria, filter_data } = req.body;
+
+    if (!column_name || !criteria ) {
+        return res.status(400).send({
+            status: 'fail',
+            message: 'Please provide the required fields'
+        });
+    }
+
+    const schemaPaths = Object.keys(model.schema.paths);
+    if (!schemaPaths.includes(column_name)) {
+        return res.status(400).send({
+            status: 'fail',
+            message: 'Invalid column name'
+        });
+    }
+
+    let filter = {};
+    switch (criteria) {
+        case 'contains':
+            filter[column_name] = { $regex: new RegExp(filter_data, 'i') };
+            break;
+        case 'equals':
+            filter[column_name] = filter_data;
+            break;
+        case 'start_with':
+            filter[column_name] = { $regex: new RegExp('^' + filter_data, 'i') };
+            break;
+        case 'ends_with':
+            filter[column_name] = { $regex: new RegExp(filter_data + '$', 'i') };
+            break;
+        case 'is_empty':
+            filter[column_name] = { $in: [null, ''] };
+            break;
+        default:
+            return res.status(400).send({
+                status: 'fail',
+                message: 'Invalid criteria'
+            });
+    }
+
+    try {
+        const data = await model.find(filter);
+        res.status(200).json({
+            status: 'success',
+            data: data
+        });
+    } catch (error) {
+        logger.error('Error filtering data: ', error);
+        res.status(500).send({
+            status: 'fail',
+            message: 'Error filtering data' + error.message,
         });
     }
 }

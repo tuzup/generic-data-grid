@@ -11,18 +11,15 @@ AlertBanner.propTypes = {
     showAlert: PropTypes.bool,
     alertMessage: PropTypes.string,
     severity: PropTypes.string,
+    closeAlert: PropTypes.func
 }
 
-export default function AlertBanner({ showAlert, alertMessage, severity = 'error' }) {
-    const [open, setOpen] = useState(showAlert)
-    useEffect(() => {
-        setOpen(showAlert)
-    }   , [showAlert])
+export default function AlertBanner({ showAlert, alertMessage, closeAlert, severity = 'error' }) {
     return (
         <>
             {showAlert &&
             <Box mb={3} sx={{ width: '100%' }}>
-                <Collapse in={open}>
+                    <Collapse in={showAlert}>
                 <Alert
                     severity={severity}
                     action={
@@ -31,7 +28,7 @@ export default function AlertBanner({ showAlert, alertMessage, severity = 'error
                         color="inherit"
                         size="small"
                         onClick={() => {
-                        setOpen(false);
+                            closeAlert()
                         }}
                     >
                         <Iconify icon='material-symbols:close-rounded' />

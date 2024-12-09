@@ -11,3 +11,5 @@ export const deleteData = (id) => API.delete(`/api/table/deleteData/${id}`);
 export const initializeData = () => API.get('/api/table/addData');
 
 export const searchData = (searchValue) => API.post('/api/table/searchData',searchValue);
+
+export const filterData = (filterValue) => API.post('/api/table/filterData',filterValue);

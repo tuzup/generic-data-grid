@@ -17,22 +17,19 @@ const TableSchema = new mongoose.Schema({
     Brand:{ type : String
     },
     Model: String,
-    AccelSec: Number,
-    TopSpeed_KmH: Number,
-    Range_Km: Number,
-    Efficiency_WhKm: Number,
-    FastCharge_KmH: Number,
-    RapidCharge: Boolean,
+    AccelSec: String,
+    TopSpeed_KmH: String,
+    Range_Km: String,
+    Efficiency_WhKm: String,
+    FastCharge_KmH: String,
+    RapidCharge: String,
     PowerTrain: String,
     PlugType: String,
     BodyStyle: String,
     Segment: String,
-    Seats: Number,
-    PriceEuro: Number,
-    Date: {
-        type: Date,
-        get: (date) => date.toLocaleDateString("en-US") 
-    }
+    Seats: String,
+    PriceEuro: String,
+    Date: String,
 });
 
 

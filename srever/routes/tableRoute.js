@@ -9,5 +9,6 @@ router.get("/getAllData", controller.getAllData);
 router.get("/getSingleData/:id", controller.getSingleData);
 router.delete("/deleteData/:id", controller.deleteData);
 router.post("/searchData", controller.searchData);
+router.post("/filterData", controller.filterData);
 
 module.exports = router;
