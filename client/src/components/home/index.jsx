@@ -9,7 +9,6 @@ import configData from '../../config.json';
 import { getAllDataService, searchDataService, filterDataService } from "../../services/tableServices";
 import Loading from "../loading";
 import AlertBanner from "../AlertBanner";
-import useWindowDimensions from "../../theme/hook/useWindowDimension";
 import { transformToStandard } from "../../util/helper";
 import DeleteModel from "./deleteModel";
 import Search from "./search";
@@ -103,7 +102,6 @@ export default function Home() {
             {loading ? <Loading /> :
                 <Container maxWidth="lg" className="ag-theme-quartz" sx={{ py: 5, height: '90vh' }}>
                     <AlertBanner showAlert={alert} alertMessage={alertMessage} closeAlert={closeAlert} severity='error' />
-                    <AlertBanner showAlert={query.get('delete')} alertMessage={"Item deleted !!"} closeAlert={closeAlert} severity='success' />
                     <Box
                         sx={{
                             display: "flex",

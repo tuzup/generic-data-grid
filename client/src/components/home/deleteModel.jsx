@@ -5,7 +5,7 @@ import Iconify from "../Iconify";
 import configData from '../../config.json';
 import useResponsive from "../../theme/hook/useResponsive";
 import { useLocation } from 'react-router-dom';
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 
 const modelStyle = {
@@ -25,6 +25,7 @@ export default function DeleteModel() {
     const query = new URLSearchParams(search);
     const action = query.get('action');
     const id = query.get('id');
+    const [isDelete, setIsDelete] = useState(false);
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
 
@@ -32,6 +33,9 @@ export default function DeleteModel() {
         window.location.assign(configData.HOME_URL);
     }
 
+    const confirmDelete = () => {
+        window.location.assign(configData.HOME_URL);
+    }
     return(
         <Modal
             open={action === 'delete'}
@@ -40,6 +44,8 @@ export default function DeleteModel() {
             aria-describedby="modal-modal-description"
         >
             <Box sx={modelStyle} width={mdUp ? 400 : '90%'}>
+                {!isDelete ? 
+                <Fragment>
                 <Typography id="modal-modal-title" variant="h6" component="h2">
                     Confirm Delete
                 </Typography>
@@ -52,7 +58,7 @@ export default function DeleteModel() {
                         onClick={async () => {
                             const response = await deleteDataService(id, setAlert, setAlertMessage);
                             if (response) {
-                                window.location.assign(configData.HOME_URL + '?delete=true');
+                                setIsDelete(true);
                             }
                         }}
                     >
@@ -64,6 +70,24 @@ export default function DeleteModel() {
                         Cancel
                     </Button>
                 </Stack>
+                </Fragment> : 
+                // This section is to confirm the delete action
+                <Fragment>
+                        <Typography id="modal-modal-title" variant="h6" component="h2" color="success">
+                        Data Deleted
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                        The data has been deleted successfully. !!
+                    </Typography>
+                    
+                        <Button startIcon={<Iconify icon='teenyicons:tick-circle-solid' />} variant="outlined" color="success" sx={{ mt: 2 }}
+                            onClick={confirmDelete}
+                        >
+                            Okay
+                        </Button>
+                    
+                </Fragment>
+                }
             </Box>
         </Modal>
     );
