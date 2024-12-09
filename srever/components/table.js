@@ -111,8 +111,11 @@ exports.deleteData = async (req, res) => {
 //This function is used to search the data from the database
 exports.searchData = async (req, res) => {
     try {
+        
+        const searchValue = req.body.searchValue;
+        const sanitizedSearchValue = searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape special characters for regex
         const data = await model.find({
-            Brand: { $regex: new RegExp(req.body.searchValue, 'i') }
+            Brand: { $regex: new RegExp(sanitizedSearchValue, 'i') }
         });
 
         res.status(200).json({
@@ -132,7 +135,11 @@ exports.searchData = async (req, res) => {
 
 //This function is used to perform the filering operation on the data
 exports.filterData = async (req, res) => {
-    const { column_name, criteria, filter_data } = req.body;
+    var { column_name, criteria, filter_data } = req.body;
+    // Sanitize user inputs
+    column_name = column_name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    criteria = criteria.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    filter_data = filter_data.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     if (!column_name || !criteria ) {
         return res.status(400).send({

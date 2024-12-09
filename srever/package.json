@@ -15,6 +15,7 @@
     "csv-parser": "^3.0.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
+    "mongo-sanitize": "^1.1.0",
     "mongoose": "^8.8.4",
     "winston": "^3.17.0"
   },
