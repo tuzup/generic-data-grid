@@ -116,6 +116,8 @@ export default function Home() {
                         rowData={rowData}
                         columnDefs={columnDefs}
                         onGridReady={() => setLoading(false)}
+                        pagination={true}
+                        paginationPageSize={20}
                     />
 
                     <DeleteModel />

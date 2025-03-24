@@ -12,10 +12,6 @@
             "name" : "Delete",
             "url" : "/?action=delete&id=",
             "icon": "material-symbols:delete"
-        },"edit": {
-            "name": "Edit",
-            "url": "/edit/",
-            "icon": "material-symbols:edit"
         }
     }
 }
